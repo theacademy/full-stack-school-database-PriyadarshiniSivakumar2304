@@ -4,6 +4,8 @@ import mthree.com.fullstackschool.dao.CourseDao;
 import mthree.com.fullstackschool.model.Course;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class CourseDaoStubImpl implements CourseDao {
 
     public Course onlyCourse;
@@ -50,11 +52,16 @@ public class CourseDaoStubImpl implements CourseDao {
     @Override
     public void deleteCourse(int id) {
         //Pass through method no tests
+        CourseDaoStubImpl dao = new CourseDaoStubImpl();
+        dao.deleteCourse(121);
+        assertEquals(0, dao.getAllCourses().size());
     }
 
     @Override
     public void deleteAllStudentsFromCourse(int courseId) {
         //Pass through method no tests
+        CourseDaoStubImpl dao = new CourseDaoStubImpl();
+        dao.deleteAllStudentsFromCourse(121);
     }
 
 }
