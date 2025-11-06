@@ -10,10 +10,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class TeacherServiceTests {
 
     private TeacherServiceImpl teacherService;
+    private TeacherDao teacherDao;
 
     public TeacherServiceTests() {
         TeacherDao teacherDao = new TeacherDaoStubImpl();
-        teacherService = new TeacherServiceImpl(teacherDao);
+        teacherService = new TeacherServiceImpl();
+        this.teacherService.setTeacherDao(teacherDao);
     }
 
     @Test
@@ -43,6 +45,7 @@ public class TeacherServiceTests {
         Teacher upTeacher = teacherService.updateTeacherData(200, teacher);
         assertNotNull(upTeacher);
         assertEquals(200, teacher.getTeacherId());
+        assertNotNull(upTeacher);
         assertEquals("Updated Teacher First Name", upTeacher.getTeacherFName());
         assertEquals("Updated Teacher Last Name", upTeacher.getTeacherLName());
     }

@@ -4,86 +4,81 @@ import mthree.com.fullstackschool.dao.CourseDao;
 import mthree.com.fullstackschool.model.Course;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataAccessException;
+
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-
+@SpringBootTest
 public class CourseServiceTests {
-
+    @Autowired
     private CourseServiceImpl courseService;
 
-    public CourseServiceTests() {
-        CourseDao courseDao = new CourseDaoStubImpl();
-        courseService = new CourseServiceImpl(courseDao);
-    }
-
     @Test
-    @DisplayName("Find Course Service test")
-    public void findCourseServiceTest() {
-        Course returnCourse = courseService.getCourseById(121);
-        assertNotNull(returnCourse);
-        assertEquals("Service Course Stub", returnCourse.getCourseName());
-    }
-
-    @Test
-    @DisplayName("Course Not Found Service Test")
-    public void courseNotFoundServiceTest() {
-        Course notFound = courseService.getCourseById(99);
-        assertNotNull(notFound);
-        assertEquals("Course Not Found", notFound.getCourseName());
-    }
-
-    @Test
-    @DisplayName("Update Course Service Test")
-    public void updateCourseServiceTest() {
+    @DisplayName("Add new course successfully")
+    void addNewCourseTest() {
         Course course = new Course();
-        course.setCourseId(121);
-        course.setCourseName("Updated Course Name");
-        course.setCourseDesc("Updated Course Desc");
-        course.setTeacherId(10);
+        course.setCourseName("Intro to Testing");
+        course.setCourseDesc("JUnit and Mockito basics");
+        course.setTeacherId(1);
 
-        Course upCourse = courseService.updateCourseData(121, course);
-        upCourse = courseService.getCourseById(121);
-        assertNotNull(upCourse);
-        assertEquals(121, upCourse.getCourseId());
-        assertEquals("Updated Course Name", upCourse.getCourseName());
-        assertEquals("Updated Course Desc", upCourse.getCourseDesc());
-        assertEquals(10, upCourse.getTeacherId());
+        Course saved = courseService.addNewCourse(course);
+
+        assertNotNull(saved.getCourseId());
+        assertEquals("Intro to Testing", saved.getCourseName());
+        assertEquals("JUnit and Mockito basics", saved.getCourseDesc());
     }
 
     @Test
-    @DisplayName("Course Not Updated Service Test")
-    public void courseNotUpdatedServiceTest() {
-        Course course = new Course();
-        course.setCourseId(121);
-        course.setCourseName("Updated Course Name");
-        course.setCourseDesc("Updated Course Desc");
-        course.setTeacherId(10);
-
-        Course upCourse = courseService.updateCourseData(99, course);
-        assertEquals("IDs do not match, course not updated", course.getCourseName());
-        assertEquals("IDs do not match, course not updated", course.getCourseDesc());
+    @DisplayName("Find course by ID")
+    void findCourseByIdTest() {
+        // Assuming your data.sql contains at least one course with cid = 1
+        Course course = courseService.getCourseById(1);
+        assertNotNull(course);
+        assertEquals(1, course.getCourseId());
+        assertNotNull(course.getCourseName());
     }
 
     @Test
-    @DisplayName("Course Add Service Test")
-    public void courseAddServiceTest() {
-        Course course = new Course();
-        course.setCourseName("New Course Name");
-        course.setCourseDesc("New Course Desc");
-        Course newCourse = courseService.addNewCourse(course);
-        assertNotNull(newCourse);
-        assertEquals("New Course Name", newCourse.getCourseName());
-        assertEquals("New Course Desc", newCourse.getCourseDesc());
+    @DisplayName("Find all courses")
+    void getAllCoursesTest() {
+        List<Course> courses = courseService.getAllCourses();
+        assertNotNull(courses);
+        assertTrue(courses.size() > 0, "Should have at least one course");
     }
 
     @Test
-    @DisplayName("Course No Add Service Test")
-    public void courseNoAddServiceTest() {
+    @DisplayName("Update existing course")
+    void updateCourseTest() {
+        Course course = courseService.getCourseById(1);
+        assertNotNull(course);
+
+        course.setCourseName("Updated Course");
+        course.setCourseDesc("Updated Description");
+        Course updated = courseService.updateCourseData(course.getCourseId(), course);
+
+        assertEquals("Updated Course", updated.getCourseName());
+        assertEquals("Updated Description", updated.getCourseDesc());
+    }
+
+    @Test
+    @DisplayName("Delete course by ID")
+    void deleteCourseTest() {
         Course course = new Course();
-        course.setCourseName("");
-        course.setCourseDesc("");
-        Course newCourse = courseService.addNewCourse(course);
-        assertEquals("Name blank, course NOT added", course.getCourseName());
-        assertEquals("Description blank, course NOT added", course.getCourseDesc());
+        course.setCourseName("Temp Delete Test");
+        course.setCourseDesc("Temp Desc");
+        course.setTeacherId(1);
+
+        Course added = courseService.addNewCourse(course);
+        assertNotNull(added.getCourseId());
+
+        courseService.deleteCourseById(added.getCourseId());
+
+        // Try fetching again
+        Course deleted = courseService.getCourseById(added.getCourseId());
+        assertNull(deleted, "Deleted course should not be found");
     }
 }

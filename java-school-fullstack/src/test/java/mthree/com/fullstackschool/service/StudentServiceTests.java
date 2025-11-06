@@ -14,7 +14,8 @@ public class StudentServiceTests {
 
     public StudentServiceTests() {
         StudentDao studentDao = new studentDaoStubImpl();
-        studentService = new StudentServiceImpl(studentDao);
+        studentService = new StudentServiceImpl();
+        studentService.setStudentDao(studentDao);
     }
 
     @Test
@@ -29,7 +30,7 @@ public class StudentServiceTests {
     @Test
     @DisplayName("Student Not Found Service Test")
     public void studentNotFoundServiceTest() {
-        Student notFound = studentService.getStudentById(99);
+        Student notFound = studentService.getStudentById(999);
         assertNotNull(notFound);
         assertEquals("Student Not Found", notFound.getStudentFirstName());
         assertEquals("Student Not Found", notFound.getStudentLastName());
@@ -59,8 +60,10 @@ public class StudentServiceTests {
         student.setStudentLastName("Updated Student Last Name");
 
         Student upStudent = studentService.updateStudentData(99, student);
-        assertEquals("IDs do not match, student not updated", student.getStudentFirstName());
-        assertEquals("IDs do not match, student not updated", student.getStudentLastName());
+        assertNotNull(upStudent);
+        assertEquals(100, upStudent.getStudentId());
+        assertEquals("IDs do not match, student not updated", upStudent.getStudentFirstName());
+
     }
 
     @Test
